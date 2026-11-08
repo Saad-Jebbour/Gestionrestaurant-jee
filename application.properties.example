@@ -1,0 +1,6 @@
+# Configuration locale de la base de données
+# Copier ce fichier sous le nom "application.properties" et ajuster les valeurs locales
+db.url=jdbc:mysql://localhost:3306/gestion_restaurant
+db.user=restaurant_app
+db.password=CHANGEME
+

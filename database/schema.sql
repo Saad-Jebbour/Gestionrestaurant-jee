@@ -3,12 +3,16 @@ CHARACTER SET utf8mb4
 COLLATE utf8mb4_unicode_ci;
 
 USE gestion_restaurant;
-SHOW DATABASES;
-CREATE TABLE UTILISATEUR (
-    idUtilisateur BIGINT PRIMARY KEY AUTO_INCREMENT,
-    nomUtilisateur VARCHAR(50) NOT NULL UNIQUE,
-    motDePasseHash VARCHAR(100) NOT NULL,
-    role ENUM('ADMIN', 'SERVEUR', 'CUISINIER') NOT NULL
+CREATE TABLE IF NOT EXISTS UTILISATEUR (
+    idUtilisateur   BIGINT PRIMARY KEY AUTO_INCREMENT,
+    nomUtilisateur  VARCHAR(50)  NOT NULL UNIQUE,
+    motDePasseHash  VARCHAR(100) NOT NULL,
+    role ENUM('ADMIN', 'SERVEUR', 'CUISINIER') NOT NULL,
+    actif           BOOLEAN NOT NULL DEFAULT TRUE,
+    mdpTemporaire   BOOLEAN NOT NULL DEFAULT FALSE,
+    tentativesEchec INT     NOT NULL DEFAULT 0,
+    verrouille      BOOLEAN NOT NULL DEFAULT FALSE,
+    CONSTRAINT chk_utilisateur_tentatives CHECK (tentativesEchec >= 0)
 );
 -- DESCRIBE UTILISATEUR;
 CREATE TABLE PLAT (
@@ -21,29 +25,19 @@ CREATE TABLE PLAT (
     CONSTRAINT chk_plat_prix
         CHECK (prix >= 0)
 );
-CREATE TABLE COMMANDE (
-    idCommande BIGINT PRIMARY KEY AUTO_INCREMENT,
-    dateCommande DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    statut ENUM(
-        'EN_ATTENTE',
-        'EN_PREPARATION',
-        'PRETE',
-        'TERMINEE',
-        'ANNULEE'
-    ) NOT NULL DEFAULT 'EN_ATTENTE',
-
-    total DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+CREATE TABLE IF NOT EXISTS COMMANDE (
+    idCommande    BIGINT PRIMARY KEY AUTO_INCREMENT,
+    dateCommande  DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    numeroTable   INT NOT NULL,
+    statut ENUM('EN_ATTENTE','EN_PREPARATION','PRETE','SERVIE','PAYEE','ANNULEE')
+           NOT NULL DEFAULT 'EN_ATTENTE',
+    total         DECIMAL(10,2) NOT NULL DEFAULT 0.00,
     idUtilisateur BIGINT NOT NULL,
-
-    CONSTRAINT chk_commande_total
-        CHECK (total >= 0),
-
-    CONSTRAINT fk_commande_utilisateur
-        FOREIGN KEY (idUtilisateur)
+    CONSTRAINT chk_commande_total CHECK (total >= 0),
+    CONSTRAINT chk_commande_table CHECK (numeroTable > 0),
+    CONSTRAINT fk_commande_utilisateur FOREIGN KEY (idUtilisateur)
         REFERENCES UTILISATEUR(idUtilisateur)
-        ON UPDATE CASCADE
-        ON DELETE RESTRICT
+        ON UPDATE CASCADE ON DELETE RESTRICT
 );
 CREATE TABLE DETAIL_COMMANDE (
     idDetail BIGINT PRIMARY KEY AUTO_INCREMENT,
@@ -78,8 +72,4 @@ CREATE TABLE DETAIL_COMMANDE (
         ON UPDATE CASCADE
         ON DELETE RESTRICT
 );
--- DESCRIBE DETAIL_COMMANDE;
-SHOW TABLES;
-DESCRIBE PLAT;
-DESCRIBE COMMANDE;
-DESCRIBE DETAIL_COMMANDE;
+

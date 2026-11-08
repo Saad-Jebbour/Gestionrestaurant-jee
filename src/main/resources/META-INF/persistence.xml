@@ -25,7 +25,7 @@
                       value="root"/>
 
             <property name="jakarta.persistence.jdbc.password"
-                      value="Norajg@2004."/>
+                      value="VOTRE_MOT_DE_PASSE_MYSQL"/>
 
             <!-- Vérifier le schéma existant sans le modifier -->
             <property name="hibernate.hbm2ddl.auto"

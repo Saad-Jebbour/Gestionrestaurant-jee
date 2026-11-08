@@ -20,7 +20,7 @@
 
             <!-- Valider le schéma existant sans le modifier -->
             <property name="hibernate.hbm2ddl.auto"
-                      value="validate"/>
+                      value="update"/>
 
             <!-- Afficher les requêtes SQL -->
             <property name="hibernate.show_sql"

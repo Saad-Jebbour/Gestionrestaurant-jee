@@ -36,3 +36,13 @@ build/
 
 ### Mac OS ###
 .DS_Store
+### Projet : IntelliJ complet ###
+.idea/
+.idea_backup/
+
+### Projet : secrets (jamais versionnés) ###
+application.properties
+db.properties
+
+### Projet : divers ###
+*.log

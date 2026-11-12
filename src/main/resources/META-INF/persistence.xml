@@ -12,6 +12,10 @@
             org.hibernate.jpa.HibernatePersistenceProvider
         </provider>
 
+        <!-- Entites gerees par JPA -->
+        <class>ma.restaurant.model.Utilisateur</class>
+        <class>ma.restaurant.model.Plat</class>
+
         <properties>
 
             <!-- Configuration MySQL (Driver uniquement, la connexion est injectée dynamiquement) -->

@@ -15,6 +15,8 @@
         <!-- Entites gerees par JPA -->
         <class>ma.restaurant.model.Utilisateur</class>
         <class>ma.restaurant.model.Plat</class>
+        <class>ma.restaurant.model.Commande</class>
+        <class>ma.restaurant.model.DetailCommande</class>
 
         <properties>
 

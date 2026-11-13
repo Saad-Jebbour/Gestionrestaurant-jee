@@ -1,0 +1,40 @@
+@startuml
+title Créer une commande (serveur, table 5)
+
+actor Serveur
+participant Navigateur
+participant CommandeServlet
+participant CommandeService
+participant PlatService
+database "Base de données" as BD
+
+== Créer la commande ==
+Serveur -> Navigateur : choisit la table 5
+Navigateur -> CommandeServlet : POST creer (numeroTable=5)
+CommandeServlet -> CommandeService : creer(idUtilisateur, 5)
+CommandeService -> BD : INSERT commande (EN_ATTENTE)
+BD --> CommandeService : commande créée
+CommandeService --> CommandeServlet : Commande
+CommandeServlet --> Navigateur : redirection vers la commande
+
+== Ajouter une pizza ==
+Serveur -> Navigateur : ajoute une pizza
+Navigateur -> CommandeServlet : POST ajouter (idCommande, idPlat, quantite)
+CommandeServlet -> CommandeService : ajouterPlat(idCommande, idPlat, quantite)
+CommandeService -> PlatService : findById(idPlat)
+PlatService -> BD : SELECT plat
+BD --> PlatService : plat
+PlatService --> CommandeService : Plat
+CommandeService -> CommandeService : vérifie que le plat est disponible
+
+alt plat disponible
+    CommandeService -> CommandeService : copie le prix, calcule sous-total et total
+    CommandeService -> BD : INSERT detail + UPDATE total
+    BD --> CommandeService : OK
+    CommandeService --> CommandeServlet : Commande à jour
+    CommandeServlet --> Navigateur : affiche la commande
+else plat indisponible
+    CommandeService --> CommandeServlet : PlatIndisponibleException
+    CommandeServlet --> Navigateur : message d'erreur en rouge
+end
+@enduml

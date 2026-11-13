@@ -83,7 +83,7 @@ public class CommandeServiceImpl implements CommandeService {
     }
 
     @Override
-    public Commande annuler(Long idCommande) {
-        throw new UnsupportedOperationException(A_FAIRE_ETAPE_10);
+    public Commande annuler(Long idCommande, Role roleActeur) {
+        return changerStatut(idCommande, StatutCommande.ANNULEE, roleActeur);
     }
 }

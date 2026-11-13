@@ -43,10 +43,10 @@ public interface CommandeService {
     Commande encaisser(Long idCommande);
 
     /**
-     * Annule la commande si son statut actuel le permet.
+     * Annule la commande si son statut actuel et le rôle de l'acteur le permettent.
      * Lance EntiteIntrouvableException ou TransitionInterditeException.
      */
-    Commande annuler(Long idCommande);
+    Commande annuler(Long idCommande, Role roleActeur);
 
     /**
      * Retourne la commande avec ses lignes chargées.

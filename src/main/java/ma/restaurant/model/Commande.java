@@ -67,7 +67,9 @@ public class Commande {
     // ----- Calcul du total : etape 10 -----
 
     public BigDecimal calculerTotal() {
-        throw new UnsupportedOperationException("A implementer a l'etape 10");
+        return details.stream()
+                .map(DetailCommande::calculerSousTotal)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     // ----- Getters / setters -----

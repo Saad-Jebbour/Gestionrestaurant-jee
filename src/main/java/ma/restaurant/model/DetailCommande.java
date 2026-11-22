@@ -10,10 +10,13 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 /** Une ligne de la table DETAIL_COMMANDE : par exemple "2 pizzas a 45 DH = 90 DH". */
 @Entity
-@Table(name = "DETAIL_COMMANDE")
+@Table(name = "DETAIL_COMMANDE", uniqueConstraints = {
+    @UniqueConstraint(name = "uq_commande_plat", columnNames = {"idCommande", "idPlat"})
+})
 public class DetailCommande {
 
     @Id

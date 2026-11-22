@@ -17,4 +17,8 @@ public class SessionUser {
     public Long getId() { return id; }
     public String getLogin() { return login; }
     public Role getRole() { return role; }
+
+    /** Retourne le nom textuel du role (ex: "ADMIN", "SERVEUR", "CUISINIER").
+     *  Utilise par les JSP via ${sessionScope.user.roleNom} pour comparer avec des chaines EL. */
+    public String getRoleNom() { return role != null ? role.name() : ""; }
 }

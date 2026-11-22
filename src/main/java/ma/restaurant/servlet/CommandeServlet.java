@@ -134,6 +134,8 @@ public class CommandeServlet extends HttpServlet {
             }
         } catch (BusinessException e) {
             req.getSession().setAttribute("erreur", e.getMessage());   // affiche en rouge par header.jspf
+        } catch (Exception e) {
+            req.getSession().setAttribute("erreur", "Erreur lors de l'operation : " + e.getMessage());
         }
         resp.sendRedirect(retour);
     }

@@ -24,7 +24,7 @@
             <property name="jakarta.persistence.jdbc.driver"
                       value="com.mysql.cj.jdbc.Driver"/>
 
-            <!-- Valider le schéma existant sans le modifier -->
+            <!-- Créer ou mettre à jour automatiquement les tables à partir des entités Java -->
             <property name="hibernate.hbm2ddl.auto"
                       value="update"/>
 

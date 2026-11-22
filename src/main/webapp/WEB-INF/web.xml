@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                             https://jakarta.ee/xml/ns/jakartaee/web-app_6_0.xsd"
+         version="6.0">
+
+    <display-name>Gestion Restaurant</display-name>
+
+    <!-- Ordre d'exécution garanti de la chaîne de filtres : -->
+    <!-- 1. Encodage UTF-8 -->
+    <filter>
+        <filter-name>EncodingFilter</filter-name>
+        <filter-class>ma.restaurant.filter.EncodingFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>EncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 2. Authentification (accès sécurisé) -->
+    <filter>
+        <filter-name>AuthentificationFilter</filter-name>
+        <filter-class>ma.restaurant.filter.AuthentificationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthentificationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- 3. Autorisation basée sur les rôles par préfixe d'URL -->
+    <filter>
+        <filter-name>AuthorizationFilter</filter-name>
+        <filter-class>ma.restaurant.filter.AuthorizationFilter</filter-class>
+    </filter>
+    <filter-mapping>
+        <filter-name>AuthorizationFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+
+    <!-- Initialisation automatique du schéma Hibernate et des données au démarrage -->
+    <listener>
+        <listener-class>ma.restaurant.listener.DatabaseInitializerListener</listener-class>
+    </listener>
+
+    <!-- Redirection d'accueil selon le rôle ou vers la connexion -->
+    <welcome-file-list>
+        <welcome-file>accueil</welcome-file>
+        <welcome-file>login</welcome-file>
+    </welcome-file-list>
+
+    <!-- Pages d'erreur HTTP personnalisées -->
+    <error-page>
+        <error-code>401</error-code>
+        <location>/WEB-INF/views/error/401.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/WEB-INF/views/error/403.jsp</location>
+    </error-page>
+
+</web-app>

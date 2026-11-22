@@ -43,51 +43,98 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             throw new AuthentificationException("Identifiant ou mot de passe incorrect.");
         }
 
-        return JPAUtil.executeInTransaction(em -> {
-            Optional<Utilisateur> optUser = utilisateurDao.findByNomUtilisateur(em, nomUtilisateur);
-            if (optUser.isEmpty()) {
-                // Identifiant introuvable : message générique pour éviter l'énumération des utilisateurs
-                throw new AuthentificationException("Identifiant ou mot de passe incorrect.");
-            }
+        // 1. Recherche de l'utilisateur par nom
+        Optional<Utilisateur> optUser = findByNomUtilisateur(nomUtilisateur);
+        if (optUser.isEmpty()) {
+            // Identifiant introuvable : message générique pour éviter l'énumération des utilisateurs
+            throw new AuthentificationException("Identifiant ou mot de passe incorrect.");
+        }
 
-            Utilisateur user = optUser.get();
+        Utilisateur user = optUser.get();
 
-            // 1. Vérification si déjà verrouillé
-            if (user.isVerrouille()) {
+        // 2. Vérification si déjà verrouillé
+        if (user.isVerrouille()) {
+            if (user.getDateVerrouillage() != null) {
+                long secondesEcoulees = java.time.Duration.between(user.getDateVerrouillage(), java.time.LocalDateTime.now()).getSeconds();
+                if (secondesEcoulees >= DUREE_VERROUILLAGE_SECONDES) {
+                    // Délai de 30 secondes écoulé : déverrouillage automatique !
+                    JPAUtil.executeInTransaction(em -> {
+                        Utilisateur u = utilisateurDao.findById(em, user.getIdUtilisateur());
+                        if (u != null) {
+                            u.setVerrouille(false);
+                            u.setTentativesEchec(0);
+                            u.setDateVerrouillage(null);
+                            utilisateurDao.update(em, u);
+                        }
+                        return null;
+                    });
+                    user.setVerrouille(false);
+                    user.setTentativesEchec(0);
+                    user.setDateVerrouillage(null);
+                } else {
+                    long secondesRestantes = DUREE_VERROUILLAGE_SECONDES - secondesEcoulees;
+                    throw new CompteVerrouilleException(
+                            "Compte temporairement verrouillé. Veuillez patienter encore " + secondesRestantes + " seconde(s).");
+                }
+            } else {
                 throw new CompteVerrouilleException("Ce compte est verrouillé suite à trop d'échecs de connexion.");
             }
+        }
 
-            // 2. Vérification si inactif
-            if (!user.isActif()) {
-                throw new CompteInactifException("Ce compte a été désactivé.");
-            }
+        // 3. Vérification si inactif
+        if (!user.isActif()) {
+            throw new CompteInactifException("Ce compte a été désactivé.");
+        }
 
-            // 3. Vérification du mot de passe avec BCrypt
-            boolean mdpValide = PasswordUtil.verifier(motDePasse, user.getMotDePasseHash());
+        // 4. Vérification du mot de passe avec BCrypt
+        boolean mdpValide = PasswordUtil.verifier(motDePasse, user.getMotDePasseHash());
 
-            if (!mdpValide) {
-                int nouvellesTentatives = user.getTentativesEchec() + 1;
-                user.setTentativesEchec(nouvellesTentatives);
+        if (!mdpValide) {
+            // L'échec doit impérativement être persisté et COMMITTÉ en base.
+            // On ne doit pas lancer l'exception dans la transaction, sinon JPAUtil fait un rollback !
+            boolean verrouille = JPAUtil.executeInTransaction(em -> {
+                Utilisateur u = utilisateurDao.findById(em, user.getIdUtilisateur());
+                if (u != null) {
+                    int nouvellesTentatives = u.getTentativesEchec() + 1;
+                    u.setTentativesEchec(nouvellesTentatives);
 
-                if (nouvellesTentatives >= MAX_TENTATIVES_ECHEC) {
-                    user.setVerrouille(true);
-                    utilisateurDao.update(em, user);
-                    throw new CompteVerrouilleException(
-                            "Compte verrouillé suite à " + MAX_TENTATIVES_ECHEC + " tentatives infructueuses.");
-                } else {
-                    utilisateurDao.update(em, user);
-                    throw new AuthentificationException("Identifiant ou mot de passe incorrect.");
+                    if (nouvellesTentatives >= MAX_TENTATIVES_ECHEC) {
+                        u.setVerrouille(true);
+                        u.setDateVerrouillage(java.time.LocalDateTime.now());
+                        utilisateurDao.update(em, u);
+                        return true;
+                    } else {
+                        utilisateurDao.update(em, u);
+                        return false;
+                    }
                 }
-            }
+                return false;
+            });
 
-            // 4. Authentification réussie : réinitialisation du compteur d'échecs
-            if (user.getTentativesEchec() > 0) {
-                user.setTentativesEchec(0);
-                utilisateurDao.update(em, user);
+            if (verrouille) {
+                throw new CompteVerrouilleException(
+                        "Compte temporairement verrouillé pour " + DUREE_VERROUILLAGE_SECONDES + " secondes suite à " + MAX_TENTATIVES_ECHEC + " tentatives infructueuses.");
+            } else {
+                int restantes = MAX_TENTATIVES_ECHEC - (user.getTentativesEchec() + 1);
+                String msgRestantes = restantes > 0 ? " (" + restantes + " tentative(s) restante(s))" : "";
+                throw new AuthentificationException("Identifiant ou mot de passe incorrect." + msgRestantes);
             }
+        }
 
-            return user;
-        });
+        // 5. Authentification réussie : réinitialisation du compteur d'échecs
+        if (user.getTentativesEchec() > 0) {
+            JPAUtil.executeInTransaction(em -> {
+                Utilisateur u = utilisateurDao.findById(em, user.getIdUtilisateur());
+                if (u != null) {
+                    u.setTentativesEchec(0);
+                    utilisateurDao.update(em, u);
+                }
+                return null;
+            });
+            user.setTentativesEchec(0);
+        }
+
+        return user;
     }
 
     @Override
@@ -99,6 +146,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             }
             user.setVerrouille(false);
             user.setTentativesEchec(0);
+            user.setDateVerrouillage(null);
             utilisateurDao.update(em, user);
             return null;
         });

@@ -14,9 +14,15 @@
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/commandes">Gestion restaurant</a>
         <c:if test="${not empty sessionScope.user}">
-            <span class="navbar-text">
-                <c:out value="${sessionScope.user.login}"/> (<c:out value="${sessionScope.user.role}"/>)
-            </span>
+            <div class="d-flex align-items-center gap-3">
+                <span class="navbar-text">
+                    <c:out value="${sessionScope.user.login}"/> (<c:out value="${sessionScope.user.role}"/>)
+                </span>
+                <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/logout">D&eacute;connexion</a>
+            </div>
+        </c:if>
+        <c:if test="${empty sessionScope.user}">
+            <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/login">Connexion</a>
         </c:if>
     </div>
 </nav>

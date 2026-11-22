@@ -27,6 +27,7 @@ import ma.restaurant.service.PlatServiceImpl;
 public class PlatsServlet extends HttpServlet {
 
     private static final String VUES = "/WEB-INF/views/plats/";
+    private static final int TAILLE_PAGE = 6;
 
     private PlatService platService;
 
@@ -86,8 +87,55 @@ public class PlatsServlet extends HttpServlet {
 
     private void afficherListe(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        List<Plat> plats = platService.findAll();
+        String motCle = req.getParameter("motCle");
+        String dispoParam = req.getParameter("disponible");
+        String prixMinParam = req.getParameter("prixMin");
+        String prixMaxParam = req.getParameter("prixMax");
+        String pageParam = req.getParameter("page");
+
+        Boolean disponible = null;
+        if (dispoParam != null && !dispoParam.isBlank()) {
+            disponible = Boolean.valueOf(dispoParam);
+        }
+
+        BigDecimal prixMin = null;
+        if (prixMinParam != null && !prixMinParam.isBlank()) {
+            try {
+                prixMin = new BigDecimal(prixMinParam.trim().replace(",", "."));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        BigDecimal prixMax = null;
+        if (prixMaxParam != null && !prixMaxParam.isBlank()) {
+            try {
+                prixMax = new BigDecimal(prixMaxParam.trim().replace(",", "."));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        int page = 1;
+        if (pageParam != null && !pageParam.isBlank()) {
+            try {
+                page = Math.max(1, Integer.parseInt(pageParam.trim()));
+            } catch (NumberFormatException ignored) {}
+        }
+
+        long totalElements = platService.compter(motCle, disponible, prixMin, prixMax);
+        int totalPages = (int) Math.ceil((double) totalElements / TAILLE_PAGE);
+        if (totalPages > 0 && page > totalPages) {
+            page = totalPages;
+        }
+
+        List<Plat> plats = platService.rechercher(motCle, disponible, prixMin, prixMax, page, TAILLE_PAGE);
+
         req.setAttribute("plats", plats);
+        req.setAttribute("pageCourante", page);
+        req.setAttribute("totalPages", totalPages);
+        req.setAttribute("totalElements", totalElements);
+        req.setAttribute("motCle", motCle != null ? motCle.trim() : "");
+        req.setAttribute("disponible", dispoParam != null ? dispoParam.trim() : "");
+        req.setAttribute("prixMin", prixMinParam != null ? prixMinParam.trim() : "");
+        req.setAttribute("prixMax", prixMaxParam != null ? prixMaxParam.trim() : "");
+
         req.getRequestDispatcher(VUES + "liste.jsp").forward(req, resp);
     }
 

@@ -77,6 +77,18 @@ public class PlatServiceImpl implements PlatService {
         }
     }
 
+    @Override
+    public List<Plat> rechercher(String motCle, Boolean disponible, BigDecimal prixMin, BigDecimal prixMax, int page, int taille) {
+        int pageValide = Math.max(page, 1);
+        int tailleValide = taille > 0 ? taille : 10;
+        return JPAUtil.executeRead(em -> platDao.rechercher(em, motCle, disponible, prixMin, prixMax, pageValide, tailleValide));
+    }
+
+    @Override
+    public long compter(String motCle, Boolean disponible, BigDecimal prixMin, BigDecimal prixMax) {
+        return JPAUtil.executeRead(em -> platDao.compter(em, motCle, disponible, prixMin, prixMax));
+    }
+
     private void valider(Plat plat) {
         if (plat == null) {
             throw new BusinessException("Plat obligatoire.");

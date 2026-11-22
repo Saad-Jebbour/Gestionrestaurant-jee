@@ -22,4 +22,14 @@ public interface PlatService {
 
     /** Supprime un plat. Refuse s'il est deja utilise dans une commande. */
     void supprimerPlat(Long id);
+
+    /**
+     * Recherche des plats avec critères combinables et pagination.
+     */
+    List<Plat> rechercher(String motCle, Boolean disponible, java.math.BigDecimal prixMin, java.math.BigDecimal prixMax, int page, int taille);
+
+    /**
+     * Compte le nombre total de plats respectant les critères de filtre.
+     */
+    long compter(String motCle, Boolean disponible, java.math.BigDecimal prixMin, java.math.BigDecimal prixMax);
 }

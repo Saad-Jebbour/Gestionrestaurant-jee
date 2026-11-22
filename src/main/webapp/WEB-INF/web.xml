@@ -38,8 +38,9 @@
         <url-pattern>/*</url-pattern>
     </filter-mapping>
 
-    <!-- Page d'accueil par défaut vers la connexion -->
+    <!-- Redirection d'accueil selon le rôle ou vers la connexion -->
     <welcome-file-list>
+        <welcome-file>accueil</welcome-file>
         <welcome-file>login</welcome-file>
     </welcome-file-list>
 

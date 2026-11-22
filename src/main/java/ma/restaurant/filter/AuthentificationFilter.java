@@ -41,8 +41,11 @@ public class AuthentificationFilter extends HttpFilter {
             chain.doFilter(req, resp);
         } else {
             // Utilisateur non connecté : redirection vers /login
-            HttpSession nouvelleSession = req.getSession(true);
-            nouvelleSession.setAttribute("erreur", "Veuillez vous connecter pour accéder à cette page.");
+            // (ne pas afficher de message d'erreur s'il visite simplement l'accueil)
+            if (!path.isEmpty() && !"/".equals(path) && !"/accueil".equalsIgnoreCase(path)) {
+                HttpSession nouvelleSession = req.getSession(true);
+                nouvelleSession.setAttribute("erreur", "Veuillez vous connecter pour accéder à cette page.");
+            }
             resp.sendRedirect(contextPath + "/login");
         }
     }

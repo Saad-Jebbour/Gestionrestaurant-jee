@@ -119,23 +119,6 @@ public class AuthServlet extends HttpServlet {
     }
 
     private void redirigerSelonRole(HttpServletRequest req, HttpServletResponse resp, Role role) throws IOException {
-        String ctx = req.getContextPath();
-        if (role == null) {
-            resp.sendRedirect(ctx + "/commandes");
-            return;
-        }
-
-        switch (role) {
-            case CUISINIER:
-                resp.sendRedirect(ctx + "/cuisine");
-                break;
-            case ADMIN:
-                resp.sendRedirect(ctx + "/statistiques");
-                break;
-            case SERVEUR:
-            default:
-                resp.sendRedirect(ctx + "/commandes");
-                break;
-        }
+        AccueilServlet.redirigerSelonRole(req, resp, role);
     }
 }

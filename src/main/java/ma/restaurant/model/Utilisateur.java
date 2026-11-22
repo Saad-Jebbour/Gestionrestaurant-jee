@@ -77,4 +77,7 @@ public class Utilisateur {
 
     public boolean isVerrouille() { return verrouille; }
     public void setVerrouille(boolean verrouille) { this.verrouille = verrouille; }
+
+    public java.time.LocalDateTime getDateVerrouillage() { return dateVerrouillage; }
+    public void setDateVerrouillage(java.time.LocalDateTime dateVerrouillage) { this.dateVerrouillage = dateVerrouillage; }
 }

@@ -54,7 +54,31 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
         // 2. Vérification si déjà verrouillé
         if (user.isVerrouille()) {
-            throw new CompteVerrouilleException("Ce compte est verrouillé suite à trop d'échecs de connexion.");
+            if (user.getDateVerrouillage() != null) {
+                long secondesEcoulees = java.time.Duration.between(user.getDateVerrouillage(), java.time.LocalDateTime.now()).getSeconds();
+                if (secondesEcoulees >= DUREE_VERROUILLAGE_SECONDES) {
+                    // Délai de 30 secondes écoulé : déverrouillage automatique !
+                    JPAUtil.executeInTransaction(em -> {
+                        Utilisateur u = utilisateurDao.findById(em, user.getIdUtilisateur());
+                        if (u != null) {
+                            u.setVerrouille(false);
+                            u.setTentativesEchec(0);
+                            u.setDateVerrouillage(null);
+                            utilisateurDao.update(em, u);
+                        }
+                        return null;
+                    });
+                    user.setVerrouille(false);
+                    user.setTentativesEchec(0);
+                    user.setDateVerrouillage(null);
+                } else {
+                    long secondesRestantes = DUREE_VERROUILLAGE_SECONDES - secondesEcoulees;
+                    throw new CompteVerrouilleException(
+                            "Compte temporairement verrouillé. Veuillez patienter encore " + secondesRestantes + " seconde(s).");
+                }
+            } else {
+                throw new CompteVerrouilleException("Ce compte est verrouillé suite à trop d'échecs de connexion.");
+            }
         }
 
         // 3. Vérification si inactif
@@ -76,6 +100,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
                     if (nouvellesTentatives >= MAX_TENTATIVES_ECHEC) {
                         u.setVerrouille(true);
+                        u.setDateVerrouillage(java.time.LocalDateTime.now());
                         utilisateurDao.update(em, u);
                         return true;
                     } else {
@@ -88,9 +113,11 @@ public class UtilisateurServiceImpl implements UtilisateurService {
 
             if (verrouille) {
                 throw new CompteVerrouilleException(
-                        "Compte verrouillé suite à " + MAX_TENTATIVES_ECHEC + " tentatives infructueuses.");
+                        "Compte temporairement verrouillé pour " + DUREE_VERROUILLAGE_SECONDES + " secondes suite à " + MAX_TENTATIVES_ECHEC + " tentatives infructueuses.");
             } else {
-                throw new AuthentificationException("Identifiant ou mot de passe incorrect.");
+                int restantes = MAX_TENTATIVES_ECHEC - (user.getTentativesEchec() + 1);
+                String msgRestantes = restantes > 0 ? " (" + restantes + " tentative(s) restante(s))" : "";
+                throw new AuthentificationException("Identifiant ou mot de passe incorrect." + msgRestantes);
             }
         }
 
@@ -119,6 +146,7 @@ public class UtilisateurServiceImpl implements UtilisateurService {
             }
             user.setVerrouille(false);
             user.setTentativesEchec(0);
+            user.setDateVerrouillage(null);
             utilisateurDao.update(em, user);
             return null;
         });

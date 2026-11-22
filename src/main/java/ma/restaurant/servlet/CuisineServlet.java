@@ -60,8 +60,8 @@ public class CuisineServlet extends HttpServlet {
             req.getSession().setAttribute("succes", "Statut mis a jour.");
         } catch (BusinessException e) {
             req.getSession().setAttribute("erreur", e.getMessage());
-        } catch (IllegalArgumentException e) {
-            req.getSession().setAttribute("erreur", "Parametres invalides.");
+        } catch (Exception e) {
+            req.getSession().setAttribute("erreur", "Erreur lors de la mise a jour : " + e.getMessage());
         }
         resp.sendRedirect(req.getContextPath() + "/cuisine");
     }

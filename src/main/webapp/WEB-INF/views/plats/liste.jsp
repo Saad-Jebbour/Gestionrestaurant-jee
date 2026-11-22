@@ -176,30 +176,44 @@
             </span>
 
             <c:if test="${totalPages > 1}">
-                <c:url var="baseUrl" value="/plats">
-                    <c:if test="${not empty motCle}"><c:param name="motCle" value="${motCle}"/></c:if>
-                    <c:if test="${not empty disponible}"><c:param name="disponible" value="${disponible}"/></c:if>
-                    <c:if test="${not empty prixMin}"><c:param name="prixMin" value="${prixMin}"/></c:if>
-                    <c:if test="${not empty prixMax}"><c:param name="prixMax" value="${prixMax}"/></c:if>
-                </c:url>
-
                 <nav aria-label="Pagination des plats">
                     <ul class="pagination pagination-sm mb-0">
-                        <!-- Précédent -->
+                        <%-- Précédent --%>
                         <li class="page-item ${pageCourante <= 1 ? 'disabled' : ''}">
-                            <a class="page-link" href="${baseUrl}&page=${pageCourante - 1}">Précédent</a>
+                            <c:url var="urlPrec" value="/plats">
+                                <c:if test="${not empty motCle}"><c:param name="motCle" value="${motCle}"/></c:if>
+                                <c:if test="${not empty disponible}"><c:param name="disponible" value="${disponible}"/></c:if>
+                                <c:if test="${not empty prixMin}"><c:param name="prixMin" value="${prixMin}"/></c:if>
+                                <c:if test="${not empty prixMax}"><c:param name="prixMax" value="${prixMax}"/></c:if>
+                                <c:param name="page" value="${pageCourante - 1}"/>
+                            </c:url>
+                            <a class="page-link" href="${urlPrec}">Précédent</a>
                         </li>
 
-                        <!-- Numéros de pages -->
+                        <%-- Numéros de pages --%>
                         <c:forEach var="i" begin="1" end="${totalPages}">
+                            <c:url var="urlPage" value="/plats">
+                                <c:if test="${not empty motCle}"><c:param name="motCle" value="${motCle}"/></c:if>
+                                <c:if test="${not empty disponible}"><c:param name="disponible" value="${disponible}"/></c:if>
+                                <c:if test="${not empty prixMin}"><c:param name="prixMin" value="${prixMin}"/></c:if>
+                                <c:if test="${not empty prixMax}"><c:param name="prixMax" value="${prixMax}"/></c:if>
+                                <c:param name="page" value="${i}"/>
+                            </c:url>
                             <li class="page-item ${i == pageCourante ? 'active' : ''}">
-                                <a class="page-link" href="${baseUrl}&page=${i}">${i}</a>
+                                <a class="page-link" href="${urlPage}">${i}</a>
                             </li>
                         </c:forEach>
 
-                        <!-- Suivant -->
+                        <%-- Suivant --%>
                         <li class="page-item ${pageCourante >= totalPages ? 'disabled' : ''}">
-                            <a class="page-link" href="${baseUrl}&page=${pageCourante + 1}">Suivant</a>
+                            <c:url var="urlSuiv" value="/plats">
+                                <c:if test="${not empty motCle}"><c:param name="motCle" value="${motCle}"/></c:if>
+                                <c:if test="${not empty disponible}"><c:param name="disponible" value="${disponible}"/></c:if>
+                                <c:if test="${not empty prixMin}"><c:param name="prixMin" value="${prixMin}"/></c:if>
+                                <c:if test="${not empty prixMax}"><c:param name="prixMax" value="${prixMax}"/></c:if>
+                                <c:param name="page" value="${pageCourante + 1}"/>
+                            </c:url>
+                            <a class="page-link" href="${urlSuiv}">Suivant</a>
                         </li>
                     </ul>
                 </nav>

@@ -1,5 +1,6 @@
 package ma.restaurant.dao;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import jakarta.persistence.EntityManager;
@@ -25,7 +26,7 @@ public class PlatDao {
      * Recherche avec filtres dynamiques (mot-clé, disponibilité, prix) et pagination.
      */
     public List<Plat> rechercher(EntityManager em, String motCle, Boolean disponible,
-                                 java.math.BigDecimal prixMin, java.math.BigDecimal prixMax,
+                                 BigDecimal prixMin, BigDecimal prixMax,
                                  int page, int taille) {
         StringBuilder jpql = new StringBuilder("SELECT p FROM Plat p WHERE 1=1");
 
@@ -70,7 +71,7 @@ public class PlatDao {
      * Compte le nombre total de plats correspondant aux filtres pour la pagination.
      */
     public long compter(EntityManager em, String motCle, Boolean disponible,
-                       java.math.BigDecimal prixMin, java.math.BigDecimal prixMax) {
+                       BigDecimal prixMin, BigDecimal prixMax) {
         StringBuilder jpql = new StringBuilder("SELECT COUNT(p) FROM Plat p WHERE 1=1");
 
         if (motCle != null && !motCle.isBlank()) {

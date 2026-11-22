@@ -23,7 +23,7 @@ import ma.restaurant.util.SessionUser;
  * 
  * En cas de rôle non autorisé, renvoie un statut HTTP 403 (Forbidden).
  */
-@WebFilter(filterName = "AuthorizationFilter", urlPatterns = "/*")
+@WebFilter(filterName = "AuthorizationFilter")
 public class AuthorizationFilter extends HttpFilter {
 
     /** Table de correspondance : Préfixe d'URL -> Ensemble des rôles autorisés. */

@@ -56,6 +56,9 @@ public class PlatsServlet extends HttpServlet {
         } catch (BusinessException e) {
             erreur(req, e.getMessage());
             resp.sendRedirect(req.getContextPath() + "/plats");
+        } catch (Exception e) {
+            erreur(req, "Une erreur inattendue est survenue : " + e.getMessage());
+            resp.sendRedirect(req.getContextPath() + "/plats");
         }
     }
 
@@ -150,7 +153,7 @@ public class PlatsServlet extends HttpServlet {
 
     private void afficherFormulaireModification(HttpServletRequest req, HttpServletResponse resp)
             throws ServletException, IOException {
-        Long id = Long.valueOf(req.getParameter("id"));
+        Long id = idParam(req, "id");
         Plat plat = platService.findById(id);
         req.setAttribute("plat", plat);
         req.setAttribute("edition", true);
@@ -186,7 +189,12 @@ public class PlatsServlet extends HttpServlet {
             succes(req, "Le plat « " + plat.getNom() + " » a été ajouté avec succès.");
         } else {
             // Modification d'un plat existant
-            Long id = Long.valueOf(idStr.trim());
+            Long id;
+            try {
+                id = Long.valueOf(idStr.trim());
+            } catch (NumberFormatException e) {
+                throw new BusinessException("Identifiant de plat invalide.");
+            }
             Plat plat = platService.findById(id);
             plat.setNom(nom.trim());
             plat.setDescription(description != null ? description.trim() : null);
@@ -200,19 +208,31 @@ public class PlatsServlet extends HttpServlet {
     }
 
     private void supprimer(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Long id = Long.valueOf(req.getParameter("id"));
+        Long id = idParam(req, "id");
         platService.supprimerPlat(id);
         succes(req, "Le plat a été supprimé avec succès.");
         resp.sendRedirect(req.getContextPath() + "/plats");
     }
 
     private void basculerDisponibilite(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        Long id = Long.valueOf(req.getParameter("id"));
+        Long id = idParam(req, "id");
         Plat plat = platService.findById(id);
         plat.setDisponible(!plat.isDisponible());
         platService.modifierPlat(plat);
         succes(req, "La disponibilité du plat « " + plat.getNom() + " » a été modifiée.");
         resp.sendRedirect(req.getContextPath() + "/plats");
+    }
+
+    private static Long idParam(HttpServletRequest req, String nom) {
+        String val = req.getParameter(nom);
+        if (val == null || val.isBlank()) {
+            throw new BusinessException("Paramètre obligatoire manquant : " + nom);
+        }
+        try {
+            return Long.valueOf(val.trim());
+        } catch (NumberFormatException e) {
+            throw new BusinessException("Paramètre invalide : " + nom);
+        }
     }
 
     private static String chemin(HttpServletRequest req) {

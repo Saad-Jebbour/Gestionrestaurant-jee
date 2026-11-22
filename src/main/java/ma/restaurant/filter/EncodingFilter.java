@@ -12,7 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 /**
  * Filtre appliquant l'encodage UTF-8 aux requêtes et réponses HTTP.
  */
-@WebFilter(filterName = "EncodingFilter", urlPatterns = "/*")
+@WebFilter(filterName = "EncodingFilter")
 public class EncodingFilter extends HttpFilter {
 
     private static final String ENCODING = "UTF-8";

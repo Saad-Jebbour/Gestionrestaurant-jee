@@ -16,7 +16,7 @@ import jakarta.servlet.http.HttpSession;
  * et des ressources statiques (CSS, JS, images...).
  * Si l'utilisateur n'est pas connecté, il est redirigé vers /login.
  */
-@WebFilter(filterName = "AuthentificationFilter", urlPatterns = "/*")
+@WebFilter(filterName = "AuthentificationFilter")
 public class AuthentificationFilter extends HttpFilter {
 
     @Override

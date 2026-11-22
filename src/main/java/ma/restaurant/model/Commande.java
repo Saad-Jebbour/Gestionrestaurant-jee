@@ -92,4 +92,9 @@ public class Commande {
 
     public List<DetailCommande> getDetails() { return details; }
     public void setDetails(List<DetailCommande> details) { this.details = details; }
+    /** Date lisible pour les pages JSP (champ calcule, pas une colonne). */
+    public String getDateFormatee() {
+        return dateCommande == null ? "" : dateCommande.format(
+                java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
 }

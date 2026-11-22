@@ -60,12 +60,10 @@ public class DatabaseInitializerListener implements ServletContextListener {
                     System.out.println("[DatabaseInitializer] Comptes admin, serveur1 et cuisto1 crees avec succes.");
                 }
 
-                // TOUJOURS s'assurer que tous les comptes sont actifs et deverrouilles.
-                // Hibernate peut creer la colonne actif avec la valeur par defaut 0 (false)
-                // pour les lignes qui existaient avant l'ajout de la colonne.
+                // S'assurer que tous les comptes existants sont bien actifs
+                // (au cas ou Hibernate a ajoute la colonne actif avec la valeur 0 par defaut)
                 int misAJour = em.createQuery(
-                        "UPDATE Utilisateur u SET u.actif = true, u.verrouille = false, u.tentativesEchec = 0 "
-                        + "WHERE u.actif = false OR u.verrouille = true")
+                        "UPDATE Utilisateur u SET u.actif = true WHERE u.actif = false")
                         .executeUpdate();
                 if (misAJour > 0) {
                     System.out.println("[DatabaseInitializer] " + misAJour + " compte(s) reactive(s) avec succes.");

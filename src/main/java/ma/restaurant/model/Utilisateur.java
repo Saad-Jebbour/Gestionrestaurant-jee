@@ -41,6 +41,9 @@ public class Utilisateur {
     @Column(name = "verrouille", nullable = false)
     private boolean verrouille = false;
 
+    @Column(name = "dateVerrouillage")
+    private java.time.LocalDateTime dateVerrouillage;
+
     /** Obligatoire pour JPA. */
     public Utilisateur() {}
 

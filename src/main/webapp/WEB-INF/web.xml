@@ -49,4 +49,14 @@
         <welcome-file>login</welcome-file>
     </welcome-file-list>
 
+    <!-- Pages d'erreur HTTP personnalisées -->
+    <error-page>
+        <error-code>401</error-code>
+        <location>/WEB-INF/views/error/401.jsp</location>
+    </error-page>
+    <error-page>
+        <error-code>403</error-code>
+        <location>/WEB-INF/views/error/403.jsp</location>
+    </error-page>
+
 </web-app>

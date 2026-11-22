@@ -31,8 +31,9 @@ public class AuthorizationFilter extends HttpFilter {
 
     @Override
     public void init() {
-        // Administration et indicateurs de performance
+        // Administration : indicateurs et gestion des plats
         autorisationsParPrefixe.put("/statistiques", Set.of(Role.ADMIN));
+        autorisationsParPrefixe.put("/plats", Set.of(Role.ADMIN));
         autorisationsParPrefixe.put("/admin", Set.of(Role.ADMIN));
 
         // Espace cuisine

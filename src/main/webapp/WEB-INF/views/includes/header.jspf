@@ -10,10 +10,32 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body class="bg-light">
-<nav class="navbar navbar-dark bg-dark mb-4">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4">
     <div class="container">
         <a class="navbar-brand" href="${pageContext.request.contextPath}/commandes">Gestion restaurant</a>
+
         <c:if test="${not empty sessionScope.user}">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <c:if test="${sessionScope.user.role == 'ADMIN'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/statistiques">Statistiques</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/plats">Carte des plats</a>
+                    </li>
+                </c:if>
+                <c:if test="${sessionScope.user.role == 'ADMIN' or sessionScope.user.role == 'SERVEUR'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/commandes">Commandes</a>
+                    </li>
+                </c:if>
+                <c:if test="${sessionScope.user.role == 'ADMIN' or sessionScope.user.role == 'CUISINIER'}">
+                    <li class="nav-item">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/cuisine">Cuisine</a>
+                    </li>
+                </c:if>
+            </ul>
+
             <div class="d-flex align-items-center gap-3">
                 <span class="navbar-text">
                     <c:out value="${sessionScope.user.login}"/> (<c:out value="${sessionScope.user.role}"/>)
@@ -22,7 +44,7 @@
             </div>
         </c:if>
         <c:if test="${empty sessionScope.user}">
-            <a class="btn btn-outline-light btn-sm" href="${pageContext.request.contextPath}/login">Connexion</a>
+            <a class="btn btn-outline-light btn-sm ms-auto" href="${pageContext.request.contextPath}/login">Connexion</a>
         </c:if>
     </div>
 </nav>

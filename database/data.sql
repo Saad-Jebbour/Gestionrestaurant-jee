@@ -1,4 +1,4 @@
-USE gestion_restaurant;
+etudiantsUSE gestion_restaurant;
 
 -- ========================================================
 -- Comptes de test (Mots de passe conformes à la politique) :

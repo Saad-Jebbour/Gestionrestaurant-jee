@@ -44,12 +44,18 @@ public class DetailCommande {
 
     // ----- Calculs : etape 10 -----
 
+    /** quantite x prixUnitaire. Exemple : 2 x 45,00 = 90,00. */
     public BigDecimal calculerSousTotal() {
-        throw new UnsupportedOperationException("A implementer a l'etape 10");
+        return prixUnitaire.multiply(BigDecimal.valueOf(quantite));
     }
 
+    /** Change la quantite de la ligne et recalcule son sous-total. */
     public void mettreAJourQuantite(int qte) {
-        throw new UnsupportedOperationException("A implementer a l'etape 10");
+        if (qte <= 0) {
+            throw new IllegalArgumentException("La quantite doit etre superieure a 0");
+        }
+        this.quantite = qte;
+        this.sousTotal = calculerSousTotal();
     }
 
     // ----- Getters / setters -----

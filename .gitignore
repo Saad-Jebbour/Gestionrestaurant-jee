@@ -46,3 +46,4 @@ db.properties
 
 ### Projet : divers ###
 *.log
+.smarttomcat/
